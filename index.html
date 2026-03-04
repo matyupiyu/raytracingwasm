@@ -17,7 +17,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);
   display:grid;grid-template-columns:400px 1fr;grid-template-rows:56px 1fr;
   overflow:hidden;height:100vh;}
 header{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;padding:0 24px;gap:12px;}
+  display:flex;align-items:center;padding:0 24px;gap:12px;}  
 .logo{font-weight:700;font-size:17px;letter-spacing:-0.3px;}
 .logo span{color:var(--accent);}
 .header-sep{flex:1;}
@@ -151,11 +151,15 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;}
 .scene-io-btn{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--muted);
   font-family:var(--font);font-size:11px;padding:5px 8px;border-radius:5px;cursor:pointer;transition:all .15s;text-align:center;}
 .scene-io-btn:hover{border-color:var(--accent);color:var(--accent);}
+.sidebar-toggle-btn{background:none;border:none;color:var(--text);font-size:20px;cursor:pointer;padding:8px 12px;transition:all .2s;}
+.sidebar-toggle-btn:hover{color:var(--accent);}
+.sidebar.hidden{display:none;}
 </style>
 </head>
 <body>
 
 <header>
+  <button id="sidebar-toggle" class="sidebar-toggle-btn" onclick="toggleSidebar()">☰</button>
   <div class="logo">Ray<span>Studio</span></div>
   <div class="header-sep"></div>
   <span id="wasm-status">⏳ WASM読込中...</span>
@@ -834,6 +838,10 @@ function updateColor(id,hex){
 }
 
 // ─── INIT ────────────────────────────────────────────────────────
+function toggleSidebar(){
+  const sidebar = document.querySelector('.sidebar');
+  sidebar.classList.toggle('hidden');
+}
 renderList();renderProps();drawView();loadWasm();
 </script>
 </body>
