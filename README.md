@@ -8,7 +8,7 @@ C言語で書いたレンダラーをWebAssembly(WASM)にコンパイルし、HT
 > レンダリング例
 
 ![render example](image10.png)
-![render example](image(1).png)
+![render example](image1.png)
 
 ## 特徴
 
