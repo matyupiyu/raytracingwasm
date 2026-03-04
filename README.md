@@ -7,7 +7,7 @@ C言語で書いたレンダラーをWebAssembly(WASM)にコンパイルし、HT
 
 > GitHub PagesのURLをここに貼る
 
-![render example](example.png)
+![render example](image10.png)
 
 ## 特徴
 
