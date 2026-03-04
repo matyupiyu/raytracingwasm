@@ -1,4 +1,4 @@
-# RayStudio
+# <span style="color:white;">Ray</span><span style="color:#7c6aff;">Studio</span>
 
 A path tracing raytracing engine that runs in the browser.
 A renderer written in C is compiled to WebAssembly (WASM), allowing you to edit scenes and perform rendering from an HTML UI.
