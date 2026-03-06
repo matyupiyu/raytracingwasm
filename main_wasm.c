@@ -18,6 +18,9 @@ Camera cam = {
     {0, 0, 0}
 };
 
+// 空の色（デフォルト値：薄い青）
+Vec sky_color = {0.3, 0.5, 0.7};
+
 static unsigned char* pixel_buf = NULL;
 
 EMSCRIPTEN_KEEPALIVE
@@ -73,6 +76,11 @@ void set_camera(double ox, double oy, double oz,
                 double sx, double sy, double sz) {
     cam.o      = (Vec){ox, oy, oz};
     cam.screen = (Vec){sx, sy, sz};
+}
+
+EMSCRIPTEN_KEEPALIVE
+void set_sky_color(double r, double g, double b) {
+    sky_color = (Vec){r, g, b};
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -132,6 +140,11 @@ unsigned char* render(int width, int height, int samples, int reflects, double d
                             ray_o = res.next_o;
                             ray_d = res.next_d;
                         }
+                    }
+                    else {
+                        // Raytracing1と同じ実装：何にも当たらない場合、空の色を適用
+                        path_color = add(path_color, hadamard(throughput, sky_color));
+                        break;
                     }
                 }
                 sum_color = add(sum_color, path_color);
