@@ -67,6 +67,7 @@ typedef struct {
     Shapetype type;
     Vec col;
     Material mat;
+    double refractive_index; // 屈折率（ガラス用）
     union{
         Sphere s;
         Infplane i;

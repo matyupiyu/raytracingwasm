@@ -372,7 +372,8 @@ function pushSceneToWasm(){
       (obj.normal||[0,1,0])[0],(obj.normal||[0,1,0])[1],(obj.normal||[0,1,0])[2],
       obj.radius||0.3,obj.height||0.5,
       wvec[0],wvec[1],wvec[2],
-      obj.lwidth||1.0,obj.lheight||1.0);
+      obj.lwidth||1.0,obj.lheight||1.0,
+      obj.refractive_index||1.5);
   });
   Module._set_camera(camPos[0],camPos[1],camPos[2],screenPos[0],screenPos[1],screenPos[2]);
   Module._set_sky_color(skyColor[0],skyColor[1],skyColor[2]);
@@ -750,6 +751,12 @@ function renderProps(){
         <option ${obj.mat==='METAL'?'selected':''}>METAL</option>
         <option ${obj.mat==='GLASS'?'selected':''}>GLASS</option>
       </select></div>`;
+    if(obj.mat==='GLASS'){
+      html+=`<div class="prop-field"><div class="prop-label">屈折率</div>
+        <input type="number" step="0.05" min="1.0" max="3.0" value="${obj.refractive_index||1.5}"
+          onchange="objects.find(o=>o.id===${obj.id}).refractive_index=+this.value">
+      </div>`;
+    }
   }
   html+=`<div class="prop-field"><div class="prop-label">色</div>
     <div class="color-row">
@@ -881,7 +888,3 @@ renderList();renderProps();drawView();loadWasm();
 </body>
 
 </html>
-
-
-
-

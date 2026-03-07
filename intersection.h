@@ -15,6 +15,8 @@ double D = b*b - 4.0 * a * c; // 判別式を計算する(aは単位ベクトル
     if (D > 1e-9) {
         // もし当たったら二次方程式の結果t(距離)を返す
         double t = (-b - sqrt(D)) / (2.0 * a);
+        if (t > 1e-6) return t;
+        t = (-b + sqrt(D)) / (2.0 * a);  // 内側からなら遠い方を使う(glass用)
         return t;
     } else {
     // もし外れたら-1.0を返す

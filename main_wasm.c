@@ -35,13 +35,15 @@ void set_object(int idx, int type, int mat,
                 double nx, double ny, double nz,
                 double radius, double height,
                 double wx, double wy, double wz,
-                double lwidth, double lheight) {
+                double lwidth, double lheight,
+                double refractive_index) {
 
     if (idx < 0 || idx >= MAX_OBJECTS) return;
 
     scene[idx].col  = (Vec){r, g, b};
     scene[idx].type = (Shapetype)type;
     scene[idx].mat  = (Material)mat;
+    scene[idx].refractive_index = refractive_index;
 
     switch ((Shapetype)type) {
         case SPHERE:
@@ -131,7 +133,11 @@ unsigned char* render(int width, int height, int samples, int reflects, double d
                             ray_o = res.next_o;
                             ray_d = res.next_d;
                         } else if (obj.mat == GLASS) {
-                            break;
+                            SurfaceResult res = intersect_glass(ray_o, ray_d, best_hit.t, obj);
+                            throughput = hadamard(throughput, obj.col);
+                            path_color = add(path_color, hadamard(throughput, res.color));
+                            ray_o = res.next_o;
+                            ray_d = res.next_d;
                         } else {
                             SurfaceResult res = intersect_point(ray_o, ray_d, best_hit.t, obj);
                             throughput = hadamard(throughput, obj.col);

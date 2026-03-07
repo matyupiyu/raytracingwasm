@@ -170,4 +170,72 @@ static inline SurfaceResult intersect_metal(Vec o, Vec d, double t, Object obj) 
     }
     return result;
 }
+static inline SurfaceResult intersect_glass_sphere(Vec o, Vec d, double t, Object obj){
+    SurfaceResult res;
+    Sphere s = obj.s;
+
+    Vec first_o = add(o, mul(d, t)); // 入口の交点を計算
+
+    Vec normal = normalize(sub(first_o, s.o)); // 入口の法線（外向き）
+
+    double cos_1 = -dot(d, normal); // 入射角のcos
+    double sin_1 = sqrt(1.0 - cos_1 * cos_1);
+
+    double sin_2 = sin_1 * 1.0 / obj.refractive_index; // スネルの法則
+    double cos_2 = sqrt(1.0 - sin_2 * sin_2);
+
+    Vec first_d = add(mul(d, 1.0 / obj.refractive_index),
+                      mul(normal, (1.0 / obj.refractive_index) * cos_1 - cos_2)); // 屈折ベクトル
+    first_d = normalize(first_d);
+
+    Vec first_o_offset = offset_pos(first_o, mul(normal, -1)); // 球内側に浮かす
+
+    Hitrecord hit = intersect_function(first_o_offset, first_d, obj, 0); // 出口を探す
+
+    if (hit.scene_id == -1 || hit.t <= 0) {
+        res.color = (Vec){0, 0, 0};
+        return res;
+    }
+
+    Vec second_o = add(first_o_offset, mul(first_d, hit.t)); // 出口の交点
+
+    Vec exit_normal = normalize(sub(second_o, s.o)); // 出口の法線（外向き）
+
+    // 出口では内部レイとexit_normalが同じ向きなのでdotが正
+    double cos_3 = dot(first_d, exit_normal);
+    double sin_3 = sqrt(1.0 - cos_3 * cos_3);
+
+    double sin_4 = sin_3 * obj.refractive_index / 1.0; // スネルの法則（逆方向）
+    double cos_4 = sqrt(1.0 - sin_4 * sin_4);
+
+    if (sin_4 > 1.0) { // 全反射
+        res.color = (Vec){0, 0, 0};
+        return res;
+    }
+
+    double n_ratio = obj.refractive_index / 1.0;
+    Vec n_exit = mul(exit_normal, -1.0); // 屈折式には内向き法線を使う
+    Vec second_d = add(mul(first_d, n_ratio),
+                   mul(n_exit, n_ratio * cos_3 - cos_4));
+    second_d = normalize(second_d);
+
+    res.next_o = offset_pos(second_o, exit_normal); // 球の外側に浮かす
+    res.next_d = second_d;
+    res.color = (Vec){0, 0, 0}; // ガラス自体は色を持たない
+    return res;
+}
+
+static inline SurfaceResult intersect_glass(Vec o, Vec d, double t, Object obj) {
+    SurfaceResult result;
+    switch (obj.type){
+        case SPHERE:
+            result = intersect_glass_sphere(o, d, t, obj);
+            break;
+        default:
+            result.color = (Vec){0, 0, 0};
+            break;
+    }
+    return result;
+}
+
 #endif
