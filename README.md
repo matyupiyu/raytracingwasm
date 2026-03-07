@@ -19,6 +19,7 @@ A renderer written in C is compiled to WebAssembly (WASM), allowing you to edit 
 - Ability to place spheres, infinite planes, finite planes, cylinders, and light sources
 - Support for SOLID / METAL / GLASS materials
 - Multiple light sources supported
+- Configurable sky color (background gradient lighting)
 - 3-direction views (TOP / FRONT / SIDE) to confirm objects
 - Save and load scenes as JSON files
 - ON/OFF toggle, duplication, and drag-and-drop reordering of objects
@@ -80,6 +81,7 @@ compile.ps1         # Compilation script
 - Direct light sampling (with shadow detection)
 - Indirect light through random hemisphere sampling
 - METAL material uses specular reflection, SOLID uses Lambertian reflection
+- Sky color contributes as ambient light when rays miss all objects
 
 ## License
 
