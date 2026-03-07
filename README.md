@@ -16,7 +16,7 @@ A renderer written in C is compiled to WebAssembly (WASM), allowing you to edit 
 
 - Path tracing raytracing engine running on WASM
 - Ability to place spheres, infinite planes, finite planes, cylinders, and light sources
-- Support for SOLID / METAL materials
+- Support for SOLID / METAL / GLASS materials
 - Multiple light sources supported
 - 3-direction views (TOP / FRONT / SIDE) to confirm objects
 - Save and load scenes as JSON files
