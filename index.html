@@ -428,56 +428,6 @@ async function startRender(){
   btn.disabled=false;btn.textContent='▶ レンダリング';
 }
 
-function _startRenderGPU(){
-  const btn=document.getElementById('render-btn');
-  const pw=document.getElementById('progress-wrap');
-  const pb=document.getElementById('progress-bar');
-  const pt=document.getElementById('progress-text');
-  const canvas=document.getElementById('render-canvas');
-  btn.disabled=true;btn.textContent='⏳ GPUレンダリング中...';
-  pw.classList.add('active');pb.style.width='0%';pt.textContent='GPUシェーダー初期化中...';
-  const w=resW,h=resH;
-  canvas.width=w;canvas.height=h;
-  canvas.style.display='block';
-  canvas.style.transform=`scale(${zoomScale})`;
-  document.getElementById('placeholder').style.display='none';
-  document.getElementById('zoom-controls').style.display='flex';
-  const enabledObjs=objects.filter(o=>o.enabled!==false);
-  const skyColor_=[skyColor[0],skyColor[1],skyColor[2]];
-  const camPos_=[camPos[0],camPos[1],camPos[2]];
-  const screenPos_=[screenPos[0],screenPos[1],screenPos[2]];
-  try{
-    gpuRenderer.render(w,h,samples,reflects,decay,camPos_,screenPos_,skyColor_,enabledObjs,
-      (prog)=>{
-        pb.style.width=(prog*90+10)+'%';
-        pt.textContent='🚀 GPUレンダリング中... '+Math.round(prog*100)+'%';
-        // live preview every 10 frames
-        if(Math.round(prog*samples)%10===0){
-          const gl=gpuRenderer.gl;
-          gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,w,h);
-          gl.useProgram(gpuRenderer.dispProg);
-          gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,gpuRenderer.tex[gpuRenderer.cur^1]);
-          gl.uniform1i(gpuRenderer._ul(gpuRenderer.dispProg,'u_accum'),0);
-          gpuRenderer._draw(gpuRenderer.dispProg);
-          const px=new Uint8Array(w*h*4);gl.readPixels(0,0,w,h,gl.RGBA,gl.UNSIGNED_BYTE,px);
-          const fl=new Uint8ClampedArray(w*h*4);
-          for(let y=0;y<h;y++){const s=(h-1-y)*w*4,d=y*w*4;fl.set(px.subarray(s,s+w*4),d);}
-          canvas.getContext('2d').putImageData(new ImageData(fl,w,h),0,0);
-        }
-      },
-      ()=>{
-        pb.style.width='100%';pt.textContent='完了！（GPU）';
-        document.getElementById('save-btn').style.display='block';
-        btn.disabled=false;btn.textContent='▶ レンダリング';
-        setTimeout(()=>pw.classList.remove('active'),2000);
-      }
-    );
-  }catch(e){
-    pt.textContent='GPUエラー: '+e.message;console.error(e);
-    btn.disabled=false;btn.textContent='▶ レンダリング';
-  }
-}
-
 // ─── ZOOM ────────────────────────────────────────────────────────
 function zoomCanvas(e){e.preventDefault();changeZoom(e.deltaY<0?0.25:-0.25);}
 function changeZoom(d){
@@ -971,8 +921,7 @@ function toggleGPU(){
   const btn=document.getElementById('gpu-toggle-btn');
   if(!gpuEnabled){
     if(!gpuRenderer){
-      try{gpuRenderer=new GPURenderer();gpuRenderer.init();}
-      catch(e){alert('WebGL2非対応: '+e.message);return;}
+      gpuRenderer=new GPURenderer();
     }
     gpuEnabled=true;btn.textContent='🚀 GPU';
     btn.style.background='var(--accent)';btn.style.color='white';
@@ -1106,6 +1055,7 @@ class GPURenderer{
   }
   render(w,h,totalSpp,reflects,decay,cam,screen,sky,objs,onProg,onDone){
     if(this._raf){cancelAnimationFrame(this._raf);this._raf=null;}
+    if(!this.gl)this.init();
     this._setupFB(w,h);this._buildSceneTex(objs);this.cur=0;
     const gl=this.gl,aspect=w/h,SPF=2;let done=0;
     const frame=()=>{
